@@ -106,6 +106,141 @@ const addEmployee = async () => {
     console.log('Employee added!');
 };
 
+const deleteEntity = async () => {
+    const { entityType } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'entityType',
+        message: 'What would you like to delete?',
+        choices: ['Employee', 'Role', 'Department'],
+      },
+    ]);
+  
+    switch (entityType) {
+      case 'Employee':
+        const employees: Employee[] = await viewEmployees();
+        const { employeeId } = await inquirer.prompt([
+          {
+            type: 'list',
+            name: 'employeeId',
+            message: 'Select the employee to delete:',
+            choices: employees.map((emp) => ({
+              name: `${emp.first_name} ${emp.last_name}`,
+              value: emp.id,
+            })),
+          },
+        ]);
+        await pool.query('DELETE FROM employee WHERE id = $1', [employeeId]);
+        console.log('Employee deleted!');
+        break;
+  
+      case 'Role':
+        const roles: Role[] = await viewRoles();
+        const { roleId } = await inquirer.prompt([
+          {
+            type: 'list',
+            name: 'roleId',
+            message: 'Select the role to delete:',
+            choices: roles.map((role) => ({ name: role.title, value: role.id })),
+          },
+        ]);
+        await pool.query('DELETE FROM role WHERE id = $1', [roleId]);
+        console.log('Role deleted!');
+        break;
+  
+      case 'Department':
+        const departments: Department[] = await viewDepartments();
+        const { departmentId } = await inquirer.prompt([
+          {
+            type: 'list',
+            name: 'departmentId',
+            message: 'Select the department to delete:',
+            choices: departments.map((dept) => ({ name: dept.name, value: dept.id })),
+          },
+        ]);
+        await pool.query('DELETE FROM department WHERE id = $1', [departmentId]);
+        console.log('Department deleted!');
+        break;
+    }
+};
+  
+const filterEmployees = async () => {
+    const { filterType } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'filterType',
+        message: 'How would you like to filter employees?',
+        choices: ['By Manager', 'By Department'],
+      },
+    ]);
+  
+    if (filterType === 'By Manager') {
+      const employees: Employee[] = await viewEmployees();
+      const { managerId } = await inquirer.prompt([
+        {
+          type: 'list',
+          name: 'managerId',
+          message: 'Select the manager:',
+          choices: employees
+            .filter((emp) => emp.manager_id !== null) // Only employees with managers
+            .map((emp) => ({
+              name: `${emp.first_name} ${emp.last_name}`,
+              value: emp.id,
+            })),
+        },
+      ]);
+  
+      const result = await pool.query(
+        `
+        SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department
+        FROM employee e
+        JOIN role r ON e.role_id = r.id
+        JOIN department d ON r.department_id = d.id
+        WHERE e.manager_id = $1
+        `,
+        [managerId]
+      );
+      console.table(result.rows);
+    } else if (filterType === 'By Department') {
+      const departments: Department[] = await viewDepartments();
+      const { departmentId } = await inquirer.prompt([
+        {
+          type: 'list',
+          name: 'departmentId',
+          message: 'Select the department:',
+          choices: departments.map((dept) => ({ name: dept.name, value: dept.id })),
+        },
+      ]);
+  
+      const result = await pool.query(
+        `
+        SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department
+        FROM employee e
+        JOIN role r ON e.role_id = r.id
+        JOIN department d ON r.department_id = d.id
+        WHERE r.department_id = $1
+        `,
+        [departmentId]
+      );
+      console.table(result.rows);
+    }
+};
+  
+const viewSalaryByDepartment = async () => {
+    const result = await pool.query(
+      `
+      SELECT d.name AS department, SUM(r.salary) AS total_salary
+      FROM employee e
+      JOIN role r ON e.role_id = r.id
+      JOIN department d ON r.department_id = d.id
+      GROUP BY d.name
+      ORDER BY total_salary DESC
+      `
+    );
+    console.table(result.rows);
+  };
+  
+
 const mainMenu = async () => {
   const { action } = await inquirer.prompt([
     {
@@ -147,6 +282,15 @@ const mainMenu = async () => {
     case 'Update an employee role':
       await updateEmployeeRole();
       break;
+    case 'Delete an employee, role, or department':
+        await deleteEntity();
+        break;
+    case 'Filter employees by manager or department':
+        await filterEmployees();
+        break;
+    case 'View total salary by department':
+        await viewSalaryByDepartment();
+        break;
     default:
       process.exit();
   }
