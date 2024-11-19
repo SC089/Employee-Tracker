@@ -1,12 +1,9 @@
 import pool from './connection.js';
-import { Role } from '../interfaces.js';
-
 export const viewDepartments = async () => {
     const { rows } = await pool.query('SELECT * FROM department');
     return rows;
 };
-
-export const viewRoles = async (): Promise<Role[]> => {
+export const viewRoles = async () => {
     const { rows } = await pool.query(`
       SELECT role.id, title, salary, department.name AS department
       FROM role
@@ -14,7 +11,6 @@ export const viewRoles = async (): Promise<Role[]> => {
     `);
     return rows;
 };
-
 export const viewEmployees = async () => {
     const { rows } = await pool.query(`
       SELECT e.id, e.first_name, e.last_name, role.title, department.name AS department,
@@ -26,5 +22,3 @@ export const viewEmployees = async () => {
     `);
     return rows;
 };
-
-

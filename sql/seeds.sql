@@ -19,21 +19,21 @@ INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES
 ('John', 'Halo', 1, 1),
 
 -- Sales
+('Riley', 'Smiley', 4, NULL), -- MANAGER
 ('Dave', 'Brown', 3, 4),
 ('Miller', 'Lite', 3, 4),
-('Riley', 'Smiley', 4, NULL), -- MANAGER
 
 -- Human Resources
-('Arthur', 'Morgan', 5, 6),
-('John', 'Marston', 5, 6),
 ('Sadie', 'Jones', 6, NULL), -- MANAGER
+('Arthur', 'Morgan', 5, 7),
+('John', 'Marston', 5, 7),
 
 -- Marketing
-('John', 'Kratos', 7, 8),
-('Mario', 'Bro', 7, 8),
 ('Bowser', 'Koopa', 8, NULL), -- MANAGER
+('John', 'Kratos', 7, 10),
+('Mario', 'Bro', 7, 10),
 
 -- Finance
-('Jose', 'Menendez', 9, 10),
-('John', 'Woods', 9, 10),
-('Miles', 'Morales', 10, NULL); -- MANAGER
+('Miles', 'Morales', 10, NULL), -- MANAGER
+('Jose', 'Menendez', 9, 13),
+('John', 'Woods', 9, 13);

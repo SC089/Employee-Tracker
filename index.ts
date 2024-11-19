@@ -1,7 +1,7 @@
 import inquirer from 'inquirer';
-const { viewDepartments, viewRoles, viewEmployees } = require('./db/queries');
-import pool from './db/connection';
-import { Role, Employee, Department } from './interfaces';
+import { viewDepartments, viewRoles, viewEmployees } from './db/queries.js';
+import pool from './db/connection.js';
+import { Role, Employee, Department } from './interfaces.js';
   
 const displayDepartments = async () => {
     const departments: Department[] = await viewDepartments();
@@ -88,12 +88,12 @@ const addEmployee = async () => {
         type: 'list',
         name: 'managerId',
         message: 'Select manager (or None):',
-        choices: [{ name: 'None', value: null }].concat(
-          employees.map((emp: Employee) => ({
-            name: `${emp.first_name} ${emp.last_name}`,
-            value: emp.id,
-          }))
-        ),
+        choices: [{ name: 'None', value: null }, 
+            ...employees.map((emp: Employee) => ({
+                name: `${emp.first_name} ${emp.last_name}`,
+                value: emp.id,
+            })),
+        ],
       },
     ]);
   
@@ -255,6 +255,9 @@ const mainMenu = async () => {
         'Add a role',
         'Add an employee',
         'Update an employee role',
+        'Delete an employee, role, or department',
+        'Filter employees by manager or department',
+        'View total salary by department',
         'Exit',
       ],
     },
