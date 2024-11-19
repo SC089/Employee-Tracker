@@ -47,3 +47,6 @@ To test the application:
 - Commit your changes
 - Push to the branch
 - Create a pull request
+
+## Demo Video
+https://drive.google.com/file/d/1XzytVtBvgQTwOoOOlSE3i1xYaXDhNtMz/view?usp=drive_link
